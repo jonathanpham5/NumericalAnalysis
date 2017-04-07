@@ -28,6 +28,9 @@ C. Differentiation and Integration
 import time
 from Tkinter import *
 from ttk import *
+from chebyshev import Chebyshev
+import math
+import importlib
 
 class App(Frame):
     def __init__(self):
@@ -119,9 +122,52 @@ class App(Frame):
     def chebyWindow(self):
         # create window
         self.cheby = Toplevel()
-        quitBtn = Button(self.cheby, text = "Submit")
-        quitBtn.pack()
+        self.cheby.title("Chebyshev")
+        self.cheby.resizable(0,0)
+        self.chebResult = DoubleVar()
+        self.chebErr = DoubleVar()
+        mainFrame = Frame(self.cheby)
+        mainFrame.pack()
+        
+        mainLabel = Label(mainFrame, text = "Enter Interval [a, b]:").grid(row = 0, sticky = W)
+    
+        aLabel = Label(mainFrame, text = "a:").grid(row = 1, sticky = W)
+        aCheb = Entry(mainFrame, width = 40)
+        aCheb.grid(row = 1, sticky = W, padx = 50)
+        
+        bLabel = Label(mainFrame, text = "b:").grid(row = 2, sticky = W)
+        bCheb = Entry(mainFrame, width = 40)
+        bCheb.grid(row = 2, sticky = W, padx = 50)
 
+        dLabel = Label(mainFrame, text = "Degree:").grid(row = 3, sticky = W)
+        dCheb = Entry(mainFrame, width = 40)
+        dCheb.grid(row = 3, sticky = W, padx = 50)
+
+        fLabel = Label(mainFrame, text = "f(x):").grid(row = 4, sticky = W)
+        fCheb = Entry(mainFrame, width = 40)
+        fCheb.grid(row = 4, sticky = W, padx = 50)
+        
+        submitBtn = Button(mainFrame, text = "Submit", command = lambda: self.doCheby(aCheb.get(), bCheb.get(), dCheb.get(), fCheb.get()))
+        submitBtn.grid(row = 5, pady = 10)
+
+        # Result Label and Result Box 
+        Label(mainFrame, text = "Result:").grid(row = 6, sticky = W)
+        resultMsg = Entry(mainFrame, width = 40, textvariable = self.chebResult)
+        resultMsg.grid(row = 6, sticky = W, padx = 50)
+
+        # Error Label and Result Box
+        Label(mainFrame, text = "Error:").grid(row = 7, sticky = W)
+        errMsg = Entry(mainFrame, width = 40, textvariable = self.chebErr)
+        errMsg.grid(row = 7, sticky = W, padx = 50)
+
+    def doCheby(self, a, b, d, f):
+        mod_name, func_name = f.rsplit('.',1)
+        mod = importlib.import_module(mod_name)
+        func = getattr(mod, func_name)
+        c = Chebyshev(int(a), int(b), int(d), func)
+        self.chebResult.set(c.eval(1))
+        self.chebErr.set(math.exp(1) / (math.pow(2, 4) * math.factorial(5)))
+        
     def splinesWindow(self):
         # create window
         self.splines = Toplevel()
